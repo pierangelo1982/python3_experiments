@@ -73,14 +73,53 @@ lines = [line.replace('\n', '') for line in file.readlines()]
 total_score = 0
 move_score = 0
 for line in lines:
-    print(line)
+    #print(line)
     opponent = getElelement(line[0], opponentElement)
     me = getElelement(line[2], meElement)
     #print(opponent['name'] + " vs " + me['name'])
     #print(str(opponent['score']) + " vs " + str(me['score']))
     move_score += int(me['score'])
     total_score += int(result(opponent, me))
-    #print(resultTest(opponent, me))
     #print(move_score)
+
+print("total score", total_score + move_score)
+
+''' ------------------------------ part 2 --------------------------'''
+print("-------------------------------------------------------------")
+def resultStrategy(opponent, me):
+    print(me)
+    if me['key'] == 'Y':
+        return getElelement(opponent['key'], opponentElement)
+    elif me['key'] == 'X':
+        if opponent['key'] == 'A':
+            return getElelement('Z', meElement)
+        elif opponent['key'] == "C":
+            return getElelement("Y", meElement)
+        elif opponent['key'] == "B":
+            return getElelement("X", meElement)
+        else:
+            pass
+    elif me['key'] == 'Z':
+        if opponent['key'] == 'C':
+            return getElelement('X', meElement)
+        elif opponent['key'] == "B":
+            return getElelement("Z", meElement)
+        elif opponent['key'] == "A":
+            return getElelement("Y", meElement)
+        else:
+            pass
+    else:
+        return ''
+    
+total_score = 0
+move_score = 0
+for line in lines:
+    #print(line)
+    opponent = getElelement(line[0], opponentElement)
+    me = getElelement(line[2], meElement)
+    me_strategy = resultStrategy(opponent, me)
+    print(me_strategy)
+    move_score += int(me_strategy['score'])
+    total_score += int(result(opponent, me_strategy))
 
 print("total score", total_score + move_score)
