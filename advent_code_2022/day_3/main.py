@@ -31,4 +31,23 @@ for line in lines:
         if char in line_part_1 and char in line_part_2:
             totale += letter_value(char)
 
-print(totale)
+print("risposta 1", totale)
+
+## -------------------------------------------------------------- ##
+
+j = 3
+total_sum = 0
+for i in range(0, len(lines), 3):
+    rucksacks = lines[i:j]
+    j += 3
+    print(rucksacks)
+
+    for char in alphabet:
+        if char in rucksacks[0] and char in rucksacks[1] and char in rucksacks[2]:
+            total_sum += letter_value(char)
+
+
+print("risposta 1", totale)
+print("risposta 2", total_sum)
+
+        
