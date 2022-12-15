@@ -1,107 +1,47 @@
-FILE_NAME = "input.txt"
+import numpy as np
+from functools import reduce
 
+with open('input.txt', 'r') as f:
+    lines = f.readlines()
+    lines = [entry.strip() for entry in lines]
 
-def process_input(input):
-    result = 0
-    for i, row in enumerate(input):
-        for j, _ in enumerate(row):
-            tmp = heigh_value(i, j, input, len(input))
-            result = tmp if tmp > result else result
-    return result
+trees = np.zeros((len(lines), len(lines[0])), dtype=int)
+for i, line in enumerate(lines):
+    trees[i, :] = np.array(list(line))
 
-def process_input1(input):
-    result = 0
-    for i, row in enumerate(input):
-        for j, _ in enumerate(row):
-            tmp = heigh_value1(i, j, input, len(input))
-            result += 1 if tmp else 0
-    return result
+# the edges are always visible
+visible_trees = 2*len(lines[0]) + 2 *(len(lines)-2)
 
+# iterate over trees
+for i in range(1, trees.shape[0]-1):
+    for j in range(1, trees.shape[1]-1):
+        tree_column = trees[:, j] - trees[i, j]
+        tree_row = trees[i, :] - trees[i, j]
+        routes = [tree_row[:j], tree_row[j+1:], tree_column[:i], tree_column[i+1:]]
+        if sum(list(map(lambda route: (route<0).all(), routes))) > 0:
+            visible_trees += 1
+visible_trees
 
-def heigh_value1(row, column, input, max_size):
-    directions = ["r", "l", "u", "d"]
-    for i in range(1, max_size):
-        tmp_directions = directions.copy()
-        for direction in tmp_directions:
-            if direction == "r":
-                if column + i == max_size:
-                    return True
-                elif input[row][column] <= input[row][column + i]:
-                    directions.remove(direction)
-            if direction == "l":
-                if column - i < 0:
-                    return True
-                elif input[row][column] <= input[row][column - i]:
-                    directions.remove(direction)
-            if direction == "d":
-                if row + i == max_size:
-                    return True
-                elif input[row][column] <= input[row + i][column]:
-                    directions.remove(direction)
-            if direction == "u":
-                if row - i < 0:
-                    return True
-                elif input[row][column] <= input[row - i][column]:
-                    directions.remove(direction)
-        if not len(directions):
-            return False
-    # print("[" + str(row) + "," + str(column) + "] -> " + str(res))
-    return False
+print(visible_trees)
 
-def heigh_value(row, column, input, max_size):
-    directions = ["r", "l", "u", "d"]
-    res = 1
-    for i in range(1, max_size):
-        tmp_directions = directions.copy()
-        for direction in tmp_directions:
-            if direction == "r":
-                if column + i == max_size:
-                    res *= i - 1
-                    directions.remove(direction)
-                elif input[row][column] <= input[row][column + i]:
-                    res *= i
-                    directions.remove(direction)
-            if direction == "l":
-                if column - i < 0:
-                    res *= i - 1
-                    directions.remove(direction)
-                elif input[row][column] <= input[row][column - i]:
-                    res *= i
-                    directions.remove(direction)
-            if direction == "d":
-                if row + i == max_size:
-                    res *= i - 1
-                    directions.remove(direction)
-                elif input[row][column] <= input[row + i][column]:
-                    res *= i
-                    directions.remove(direction)
-            if direction == "u":
-                if row - i < 0:
-                    res *= i - 1
-                    directions.remove(direction)
-                elif input[row][column] <= input[row - i][column]:
-                    res *= i
-                    directions.remove(direction)
-        if not len(directions):
-            break
-    # print("[" + str(row) + "," + str(column) + "] -> " + str(res))
-    return res
+scenic_scores = np.zeros((len(lines), len(lines[0])), dtype=int)
 
+def compute_scenic_score(route):
+    big_trees_array = list(route >= 0)
+    if True in big_trees_array:
+        return big_trees_array.index(True) + 1
+    else:
+        return len(big_trees_array)
 
-def read_file(file_name):
-    res = []
-    with open(file_name, "r") as f:
-        for line in f.readlines():
-            res.append([int(x) for x in line.strip()])
-    return res
+# iterate over trees
+for i in range(1, trees.shape[0]-1):
+    for j in range(1, trees.shape[1]-1):
+        tree_column = trees[:, j] - trees[i, j]
+        tree_row = trees[i, :] - trees[i, j]
+        # left, right, up, down
+        routes = [tree_row[j-1::-1], tree_row[j+1:], tree_column[i-1::-1], tree_column[i+1:]]
+        scenic_scores[i,j] = np.prod(list(map(compute_scenic_score, routes)))
+    
+result = np.max(scenic_scores)
 
-
-if __name__ == "__main__":
-    input = read_file(FILE_NAME)
-    print(process_input1(input))
-
-
-
-        
-
-
+print(result)
